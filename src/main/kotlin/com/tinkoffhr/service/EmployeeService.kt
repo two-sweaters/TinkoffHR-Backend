@@ -2,8 +2,10 @@ package com.tinkoffhr.service
 
 import com.tinkoffhr.datasource.EmployeeDataSource
 import com.tinkoffhr.model.Employee
+import com.tinkoffhr.model.EmployeeStatus
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
+import java.lang.IllegalArgumentException
 
 @Service
 class EmployeeService(private val dataSource: EmployeeDataSource) {
@@ -14,5 +16,9 @@ class EmployeeService(private val dataSource: EmployeeDataSource) {
         dataSource.findByIdOrNull(email)
             ?: throw NoSuchElementException("Could not found employee with $email email address")
 
-    fun post(employee: Employee) = dataSource.save(employee)
+    fun savePhotoUrl(email: String, photoUrl: String) {
+        val employee = getEmployee(email)
+        employee.photoUrl = photoUrl
+        dataSource.save(employee)
+    }
 }

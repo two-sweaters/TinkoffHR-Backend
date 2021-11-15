@@ -1,9 +1,7 @@
 package com.tinkoffhr.model
 
 import java.time.LocalDate
-import javax.persistence.Entity
-import javax.persistence.Id
-import javax.persistence.Table
+import javax.persistence.*
 
 @Entity
 @Table(name="employees")
@@ -17,8 +15,8 @@ class Employee (
     var birthDate: LocalDate,
     var employmentDate: LocalDate,
     var tableNumber: String?,
-    var status: EmployeeStatus,
-    var achievement: String?
+    @Enumerated(EnumType.STRING) var status: EmployeeStatus,
+    @Enumerated(EnumType.STRING) var achievement: Achievement?
 )
 
 enum class EmployeeStatus {
@@ -31,7 +29,6 @@ enum class EmployeeStatus {
 }
 
 enum class Achievement {
-    NONE,
     SPEAKER,
     TEACHER
 }
