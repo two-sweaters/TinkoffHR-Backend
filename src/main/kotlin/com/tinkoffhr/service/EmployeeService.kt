@@ -21,4 +21,10 @@ class EmployeeService(private val dataSource: EmployeeDataSource) {
         employee.photoUrl = photoUrl
         dataSource.save(employee)
     }
+
+    fun saveStatus(email: String, status: EmployeeStatus) {
+        val employee = getEmployee(email)
+        employee.status = status
+        dataSource.save(employee)
+    }
 }
