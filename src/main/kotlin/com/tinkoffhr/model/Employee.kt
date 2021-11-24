@@ -1,34 +1,21 @@
 package com.tinkoffhr.model
 
 import java.time.LocalDate
-import javax.persistence.*
+import javax.persistence.EnumType
+import javax.persistence.Enumerated
+import javax.persistence.Id
 
-@Entity
-@Table(name="employees")
-class Employee (
-    @Id var email: String,
-    var fio: String,
-    var photoUrl: String?,
-    var bio: String?,
-    var project: String?,
-    var companyPosition: String,
-    var birthDate: LocalDate,
-    var employmentDate: LocalDate,
-    var tableNumber: String?,
-    @Enumerated(EnumType.STRING) var status: EmployeeStatus,
-    @Enumerated(EnumType.STRING) var achievement: Achievement?
-)
-
-enum class EmployeeStatus {
-    OFFICE,
-    HOME,
-    SICK,
-    TRIP,
-    VACATION,
-    FIRED
-}
-
-enum class Achievement {
-    SPEAKER,
-    TEACHER
+data class Employee (val employee: EmployeeEntity)
+{
+    var email: String = employee.email
+    var fio: String = employee.fio
+    var photoUrl: String? = employee.photoUrl
+    var bio: String? = employee.bio
+    var project: String? = employee.project
+    var companyPosition: String = employee.companyPosition
+    var birthDate: LocalDate = employee.birthDate
+    var employmentDate: LocalDate = employee.employmentDate
+    var tableNumber: String? = employee.tableNumber
+    var status: EmployeeStatus = employee.status
+    var achievement: Achievement? = employee.achievement
 }

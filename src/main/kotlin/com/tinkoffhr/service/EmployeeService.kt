@@ -1,30 +1,28 @@
 package com.tinkoffhr.service
 
-import com.tinkoffhr.datasource.EmployeeDataSource
-import com.tinkoffhr.model.Employee
+import com.tinkoffhr.EntityNotFoundException
+import com.tinkoffhr.repository.EmployeeRepository
+import com.tinkoffhr.model.EmployeeEntity
 import com.tinkoffhr.model.EmployeeStatus
-import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
-import java.lang.IllegalArgumentException
 
 @Service
-class EmployeeService(private val dataSource: EmployeeDataSource) {
+class EmployeeService(private val dataSource: EmployeeRepository) {
 
-    fun getAllEmployees(): List<Employee> = dataSource.findAll().toList()
+    fun getAllEmployees(): List<EmployeeEntity> = dataSource.findAll().toList()
 
-    fun getEmployee(email: String): Employee =
-        dataSource.findByIdOrNull(email)
-            ?: throw NoSuchElementException("Could not found employee with $email email address")
-
-    fun savePhotoUrl(email: String, photoUrl: String) {
-        val employee = getEmployee(email)
-        employee.photoUrl = photoUrl
-        dataSource.save(employee)
+    fun updatePhotoUrl(email: String, photoUrl: String) {
+        if (dataSource.savePhotoUrl(email, photoUrl) == 0)
+            throw EntityNotFoundException("Could not found employee with $email email address")
     }
 
-    fun saveStatus(email: String, status: EmployeeStatus) {
-        val employee = getEmployee(email)
-        employee.status = status
-        dataSource.save(employee)
+    fun updateStatus(email: String, status: EmployeeStatus) {
+        if (dataSource.saveStatus(email, status) == 0)
+            throw EntityNotFoundException("Could not found employee with $email email address")
+    }
+
+    fun updateBio(email: String, bio: String) {
+        if (dataSource.saveBio(email, bio) == 0)
+            throw EntityNotFoundException("Could not found employee with $email email address")
     }
 }

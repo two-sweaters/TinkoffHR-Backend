@@ -1,36 +1,32 @@
 package com.tinkoffhr.controller
 
+import com.tinkoffhr.InvalidArgumentException
+import com.tinkoffhr.StringToEmployeeStatusConverter
 import com.tinkoffhr.model.Employee
-import com.tinkoffhr.model.EmployeeStatus
+import com.tinkoffhr.model.EmployeeEntity
 import com.tinkoffhr.service.EmployeeService
-import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("api/employees")
 class EmployeeController(private val service: EmployeeService) {
 
-    @ExceptionHandler(NoSuchElementException::class)
-    fun handleNotFound(e: NoSuchElementException): ResponseEntity<String> =
-        ResponseEntity(e.message, HttpStatus.NOT_FOUND)
-
-    @ExceptionHandler(IllegalArgumentException::class)
-    fun handleNotFound(e: IllegalArgumentException): ResponseEntity<String> =
-        ResponseEntity(e.message, HttpStatus.BAD_REQUEST)
-
     @GetMapping
-    fun getAllEmployees(): List<Employee> = service.getAllEmployees()
+    fun getAllEmployees(): List<Employee> = service.getAllEmployees().map {entity -> Employee(entity) }
 
-    @PatchMapping("/{email}/photo/{photoUrl}")
-    fun postPhotoUrl(@PathVariable email: String, @PathVariable photoUrl: String) =
-        service.savePhotoUrl(email, photoUrl)
+    @PatchMapping("/photo")
+    fun postPhotoUrl(@RequestParam email: String, @RequestBody photoUrl: String) =
+        service.updatePhotoUrl(email, photoUrl)
 
-    @PatchMapping("/{email}/status/{status}")
-    fun postStatus(@PathVariable email: String, @PathVariable status: EmployeeStatus?) {
-        if (status == null)
-            throw IllegalArgumentException("Invalid status $status.")
+    @PatchMapping("/status")
+    fun postStatus(@RequestParam email: String, @RequestBody status: String) {
+        val statusEnum = StringToEmployeeStatusConverter().convert(status)
+            ?: throw InvalidArgumentException("Invalid employee status $status")
 
-        service.saveStatus(email, status)
+        service.updateStatus(email, statusEnum)
     }
+
+    @PatchMapping("/bio")
+    fun postBio(@RequestParam email: String, @RequestBody bio: String) =
+        service.updatePhotoUrl(email, bio)
 }
