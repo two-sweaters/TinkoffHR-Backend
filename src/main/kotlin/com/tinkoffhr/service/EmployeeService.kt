@@ -1,28 +1,45 @@
 package com.tinkoffhr.service
 
-import com.tinkoffhr.EntityNotFoundException
+import com.tinkoffhr.InvalidArgumentException
+import com.tinkoffhr.StringToEmployeeStatusConverter
+import com.tinkoffhr.dto.EmployeeAdminDto
+import com.tinkoffhr.dto.EmployeeUserDto
 import com.tinkoffhr.repository.EmployeeRepository
 import com.tinkoffhr.model.EmployeeEntity
-import com.tinkoffhr.model.EmployeeStatus
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 
 @Service
-class EmployeeService(private val dataSource: EmployeeRepository) {
+class EmployeeService(private val repository: EmployeeRepository) {
 
-    fun getAllEmployees(): List<EmployeeEntity> = dataSource.findAll().toList()
+    fun getAllEmployees(): List<EmployeeEntity> = repository.findAll().toList()
 
-    fun updatePhotoUrl(email: String, photoUrl: String) {
-        if (dataSource.savePhotoUrl(email, photoUrl) == 0)
-            throw EntityNotFoundException("Could not found employee with $email email address")
+    fun getEmployee(email: String): EmployeeEntity =
+        repository.findByIdOrNull(email)
+            ?: throw NoSuchElementException("Could not found employee with $email email address")
+
+    fun updateEmployeeUser(email: String, dto: EmployeeUserDto) {
+        val entity = getEmployee(email)
+
+        val statusEnum = StringToEmployeeStatusConverter().convert(dto.status)
+            ?: throw InvalidArgumentException("Invalid employee status ${dto.status}")
+
+        entity.photoUrl = dto.photoUrl
+        entity.bio = dto.bio
+        entity.status = statusEnum
+
+        repository.save(entity)
     }
 
-    fun updateStatus(email: String, status: EmployeeStatus) {
-        if (dataSource.saveStatus(email, status) == 0)
-            throw EntityNotFoundException("Could not found employee with $email email address")
-    }
+    fun updateEmployeeAdmin(email: String, dto: EmployeeAdminDto) {
+        val entity = getEmployee(email)
 
-    fun updateBio(email: String, bio: String) {
-        if (dataSource.saveBio(email, bio) == 0)
-            throw EntityNotFoundException("Could not found employee with $email email address")
+        entity.project = dto.project
+        entity.companyPosition = dto.companyPosition
+        entity.birthDate = dto.birthDate
+        entity.employmentDate = dto.employmentDate
+        entity.tableNumber = dto.tableNumber
+
+        repository.save(entity)
     }
 }
